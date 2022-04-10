@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "930693921246",
+    "project_id": "cocktails-5ade3",
+    "storage_bucket": "cocktails-5ade3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930693921246:android:501de5306c1489ad0b454f",
+        "android_client_info": {
+          "package_name": "ru.rumigor.cocktailsmaster"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930693921246-m8vijdn8ggcl46lv3iiiec75e6q06l2d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn3qJe0CsEBwOumwTV_nRyYIXlDs75xEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930693921246-m8vijdn8ggcl46lv3iiiec75e6q06l2d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
