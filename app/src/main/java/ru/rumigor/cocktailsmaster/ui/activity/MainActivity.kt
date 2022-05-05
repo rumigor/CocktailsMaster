@@ -1,5 +1,7 @@
-package ru.rumigor.cocktailsmaster
+package ru.rumigor.cocktailsmaster.ui.activity
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
@@ -11,9 +13,17 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import ru.rumigor.cocktailsmaster.R
 import ru.rumigor.cocktailsmaster.databinding.ActivityMainBinding
+import ru.rumigor.cocktailsmaster.model.Drink
+import ru.rumigor.cocktailsmaster.ui.base.BaseActivity
+import ru.rumigor.cocktailsmaster.ui.viewmodel.MainViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity<List<Drink>?>() {
+    override val viewModel: MainViewModel by viewModel()
+    override val ui: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private lateinit var adapter: MainAdapter
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -42,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -53,5 +64,13 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        fun getStartIntent(context: Context) = Intent(context, MainActivity::class.java)
+    }
+
+    override fun renderData(data: List<Drink>?) {
+        TODO("Not yet implemented")
     }
 }

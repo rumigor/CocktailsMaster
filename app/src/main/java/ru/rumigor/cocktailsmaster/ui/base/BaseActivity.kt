@@ -31,10 +31,7 @@ abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
     }
 
     protected open fun renderError(error: Throwable) {
-        when (error) {
-            is NoAuthException -> startLoginActivity()
-            else -> error.message?.let { showError(it) }
-        }
+         error.message?.let { showError(it) }
     }
 
     abstract fun renderData(data: T)
@@ -46,22 +43,22 @@ abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    private fun startLoginActivity() {
-        val providers = listOf(
-            AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build()
-        )
-
-        startActivityForResult(
-            AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setLogo(R.drawable.lenecoproekt)
-                .setTheme(R.style.LoginStyle)
-                .setAvailableProviders(providers)
-                .build(),
-            RC_SIGN_IN
-        )
-    }
+//    private fun startLoginActivity() {
+//        val providers = listOf(
+//            AuthUI.IdpConfig.EmailBuilder().build(),
+//            AuthUI.IdpConfig.GoogleBuilder().build()
+//        )
+//
+//        startActivityForResult(
+//            AuthUI.getInstance()
+//                .createSignInIntentBuilder()
+//                .setLogo(R.drawable.lenecoproekt)
+//                .setTheme(R.style.LoginStyle)
+//                .setAvailableProviders(providers)
+//                .build(),
+//            RC_SIGN_IN
+//        )
+//    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

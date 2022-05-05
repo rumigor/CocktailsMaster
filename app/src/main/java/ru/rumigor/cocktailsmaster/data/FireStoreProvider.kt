@@ -1,9 +1,15 @@
 package ru.rumigor.cocktailsmaster.data
 
+import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import ru.rumigor.cocktailsmaster.model.Drink
+import ru.rumigor.cocktailsmaster.model.DrinkResult
+import ru.rumigor.cocktailsmaster.model.User
 import java.lang.Exception
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -24,37 +30,38 @@ class FireStoreProvider(
         private val TAG = "${FireStoreProvider::class.java.simpleName} :"
     }
 
-    override suspend fun subscribeToAllNotes(): ReceiveChannel<NoteResult> =
-        Channel<NoteResult>(Channel.CONFLATED).apply {
+    @ExperimentalCoroutinesApi
+    override suspend fun subscribeToAllDrinks(): ReceiveChannel<DrinkResult> =
+        Channel<DrinkResult>(Channel.CONFLATED).apply {
             var registration: ListenerRegistration? = null
             try {
-                registration = getUserNotesCollection()
+                registration = db.collection(COCKTAILS_COLLECTION)
                     .addSnapshotListener { snapshot, e ->
                         val value = e?.let {
-                            NoteResult.Error(it)
+                            DrinkResult.Error(it)
                         } ?: snapshot?.let { querySnapshot ->
                             val notes = querySnapshot.documents.map { documentSnapshot ->
-                                documentSnapshot.toObject(Note::class.java)
+                                documentSnapshot.toObject(Drink::class.java)
                             }
-                            NoteResult.Success(notes.sortedByDescending { note -> note?.lastChanged })
+                            DrinkResult.Success(notes.sortedByDescending { drink -> drink?.date })
                         }
 
-                        value?.let { offer(it) }
+                        value?.let { trySend(it).isSuccess }
                     }
 
             } catch (e: Throwable) {
-                offer(NoteResult.Error(e))
+                trySend(DrinkResult.Error(e)).isSuccess
             }
             invokeOnClose { registration?.remove() }
         }
 
-    override suspend fun getNoteById(id: String): Note =
+    override suspend fun getDrinkById(id: String): Drink =
         suspendCoroutine { continuation ->
             try {
-                getUserNotesCollection().document(id)
+                db.collection(COCKTAILS_COLLECTION).document(id)
                     .get()
                     .addOnSuccessListener { snapshot ->
-                        continuation.resume(snapshot.toObject(Note::class.java)!!)
+                        continuation.resume(snapshot.toObject(Drink::class.java)!!)
                     }
                     .addOnFailureListener { exception ->
                         throw exception
@@ -64,12 +71,12 @@ class FireStoreProvider(
             }
         }
 
-    override suspend fun saveNote(note: Note): Note =
+    override suspend fun saveDrink(drink: Drink): Drink =
         suspendCoroutine { continuation ->
             try {
-                getUserNotesCollection().document(note.id)
-                    .set(note).addOnSuccessListener {
-                        continuation.resume(note)
+                db.collection(COCKTAILS_COLLECTION).document(drink.id)
+                    .set(drink).addOnSuccessListener {
+                        continuation.resume(drink)
                     }
                     .addOnFailureListener {
                         OnFailureListener { exception ->
@@ -82,10 +89,10 @@ class FireStoreProvider(
 
         }
 
-    override suspend fun removeNote(id: String): Note? =
+    override suspend fun removeDrink(id: String): Drink? =
         suspendCoroutine { continuation ->
             try {
-                getUserNotesCollection().document(id)
+                db.collection(COCKTAILS_COLLECTION).document(id)
                     .delete()
                     .addOnSuccessListener {
                         continuation.resume(null)
@@ -99,14 +106,14 @@ class FireStoreProvider(
     private val currentUser
         get() = firebaseAuth.currentUser
 
-    private fun getUserNotesCollection() = currentUser?.let {
-        db.collection(USERS_COLLECTION).document(it.uid).collection(NOTES_COLLECTION)
-    } ?: throw NoAuthException()
-
-    override suspend fun getCurrentUser(): User? =
-        suspendCoroutine { continuation ->
-            currentUser?.let { firebaseUser ->
-                continuation.resume(User(firebaseUser.displayName ?: "", firebaseUser.email ?: ""))
-            } ?: continuation.resume(null)
-        }
+//    private fun getUserDrinksCollection() = currentUser?.let {
+//        db.collection(USERS_COLLECTION).document(it.uid).collection(COCKTAILS_COLLECTION)
+//    } ?: throw NoAuthException()
+//
+//    override suspend fun getCurrentUser(): User? =
+//        suspendCoroutine { continuation ->
+//            currentUser?.let { firebaseUser ->
+//                continuation.resume(User(firebaseUser.displayName ?: "", firebaseUser.email ?: ""))
+//            } ?: continuation.resume(null)
+//        }
 }
