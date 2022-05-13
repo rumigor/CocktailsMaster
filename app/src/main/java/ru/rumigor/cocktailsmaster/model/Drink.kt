@@ -6,13 +6,15 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Drink(
     val id: String = "",
+    val name: String = "",
     val category: String = "",
     val date: String = "",
     val description: String = "",
     val rating: Float = 0f,
     val recipe: String = "",
     val title: String = "",
-    val type: String = ""
+    val type: String = "",
+    val imageUrl : String
 
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
